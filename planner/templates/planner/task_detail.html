@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="task-detail-page">
+    <div class="task-detail-top">
+        <a class="back-link" href="{% url 'day' task.day_index %}">← назад</a>
+        <div class="task-detail-title-row">
+            <h1>#{{ task.order }} {{ task.title }}</h1>
+            <span class="tag tag-{{ task.style }}">{{ task.get_style_display }}</span>
+        </div>
+    </div>
+
+    <div class="task-detail-grid">
+        <section class="task-description-panel">
+            <p class="description">{{ task.description|linebreaksbr }}</p>
+
+            <div class="task-rules">
+                <div class="rule-item">
+                    <span class="rule-icon">⚙</span>
+                    <span>Реализуйте функцию/класс строго по шаблону</span>
+                </div>
+                <div class="rule-item">
+                    <span class="rule-icon">✕</span>
+                    <span>Без <code>input()</code> — параметры через аргументы</span>
+                </div>
+                <div class="rule-item">
+                    <span class="rule-icon">↩</span>
+                    <span>Используйте <code>return</code>, не <code>print()</code></span>
+                </div>
+            </div>
+
+            {% if examples %}
+            <div class="task-examples">
+                <h3>Примеры</h3>
+                <pre>{% for item in examples %}{{ item }}{% if not forloop.last %}
+{% endif %}{% endfor %}</pre>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="editor-panel">
+            <form method="post" class="editor-form">
+                {% csrf_token %}
+                <div class="editor-shell" data-task-id="{{ task.id }}">
+                    <div class="editor-toolbar">
+                        <div class="editor-meta">
+                            <span class="file-pill">solution.py</span>
+                            <span class="editor-badge">Python 3.13</span>
+                        </div>
+                        <div class="editor-actions">
+                            <button class="btn-icon" type="button" data-action="copy" title="Копировать">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3a1.5 1.5 0 0 1 1.5-1.5H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            </button>
+                            <button class="btn-icon" type="button" data-action="reset" title="Сбросить">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 1 1.76 4.24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 4v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <button class="btn btn-submit" type="submit">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="draft-bar" hidden>
+                        <span>Найден черновик</span>
+                        <div class="draft-actions">
+                            <button class="btn ghost small" type="button" data-action="restore-draft">Восстановить</button>
+                            <button class="btn ghost small" type="button" data-action="clear-draft">Удалить</button>
+                        </div>
+                    </div>
+                    <div class="editor-body">
+                        {{ form.code }}
+                        <textarea class="starter-code" hidden>{{ task.starter_code }}</textarea>
+                    </div>
+                    <div class="editor-footer">
+                        <span class="editor-stat" data-stat="lines">Строк: 0</span>
+                        <span class="editor-stat" data-stat="chars">Символов: 0</span>
+                        <span class="editor-stat shortcut">Ctrl+Enter — проверить</span>
+                        <span class="editor-stat shortcut">Ctrl+/ — комментировать</span>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+{% if result %}
+<section class="result-section {% if result.passed %}result-ok{% else %}result-error{% endif %}">
+    {% if result.passed %}
+        <div class="result-status ok">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Все тесты пройдены</span>
+        </div>
+    {% else %}
+        <div class="result-status error">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M7 7l6 6M13 7l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Есть ошибки</span>
+        </div>
+    {% endif %}
+    {% if result.output %}
+        <div class="result-block">
+            <h4>Вывод</h4>
+            <pre>{{ result.output }}</pre>
+        </div>
+    {% endif %}
+    {% if result.error %}
+        <div class="result-block">
+            <h4>Ошибки</h4>
+            <pre>{{ result.error }}</pre>
+        </div>
+    {% endif %}
+</section>
+{% elif last_submission %}
+<section class="result-section">
+    <h3>Последняя попытка</h3>
+    {% if last_submission.passed %}
+        <p class="result-status ok">Тесты пройдены</p>
+    {% else %}
+        <p class="result-status error">Тесты не пройдены</p>
+    {% endif %}
+</section>
+{% endif %}
+
+{% if passed %}
+<section class="result-actions">
+    {% if next_task %}
+        <a class="btn" href="{% url 'task_detail' next_task.id %}">Далее →</a>
+    {% else %}
+        <a class="btn" href="{% url 'dashboard' %}">К плану</a>
+    {% endif %}
+    <a class="btn ghost" href="{% url 'day' task.day_index %}">К дню</a>
+</section>
+{% endif %}
+{% endblock %}

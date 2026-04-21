@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-card">
+        <h1>План на неделю</h1>
+        <p class="muted">10 задач в день: процедурный, функциональный и ООП стили. Решения проверяются автоматически.</p>
+        <div class="hero-pills">
+            <span class="hero-pill">70 задач</span>
+            <span class="hero-pill">Python 3.13</span>
+            <span class="hero-pill">Автопроверка</span>
+        </div>
+    </div>
+    {% if not user.is_authenticated %}
+    <div class="cta hero-card">
+        <div>
+            <h2>Сохраняйте прогресс</h2>
+            <p class="muted">Войдите, чтобы видеть историю попыток и статус решений.</p>
+        </div>
+        <a class="btn" href="{% url 'login' %}">Войти</a>
+    </div>
+    {% endif %}
+</section>
+
+<div class="week-grid">
+    {% for day in days %}
+    <section class="day-card">
+        <header class="day-header">
+            <div>
+                <div class="day-kicker">День {{ day.index }}</div>
+                <h2>{{ day.name }}</h2>
+                <div class="progress">Готово: {{ day.completed }}/{{ day.total }}</div>
+                <div class="progress-bar" style="--value: {{ day.percent }}%;">
+                    <span></span>
+                </div>
+            </div>
+            <a class="btn ghost" href="{% url 'day' day.index %}">Открыть</a>
+        </header>
+        <ul class="task-list">
+            {% for task in day.tasks %}
+            <li>
+                <a class="task-link" href="{% url 'task_detail' task.id %}">
+                    <span class="task-number">#{{ task.order }}</span>
+                    <span class="task-title">{{ task.title }}</span>
+                </a>
+                <span class="tag tag-{{ task.style }}">{{ task.get_style_display }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endfor %}
+</div>
+{% endblock %}
