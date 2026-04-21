@@ -3,7 +3,7 @@
 {% block content %}
 <div class="task-detail-page">
     <div class="task-detail-top">
-        <a class="back-link" href="{% url 'day' task.day_index %}">← назад</a>
+        <a class="back-link" href="{{ back_url }}">← к списку задач</a>
         <div class="task-detail-title-row">
             <h1>#{{ task.order }} {{ task.title }}</h1>
             <span class="tag tag-{{ task.style }}">{{ task.get_style_display }}</span>
@@ -122,9 +122,9 @@
     {% if next_task %}
         <a class="btn" href="{% url 'task_detail' next_task.id %}">Далее →</a>
     {% else %}
-        <a class="btn" href="{% url 'dashboard' %}">К плану</a>
+        <a class="btn" href="{% url 'dashboard' %}">К задачам</a>
     {% endif %}
-    <a class="btn ghost" href="{% url 'day' task.day_index %}">К дню</a>
+    <a class="btn ghost" href="{{ back_url }}">К списку</a>
 </section>
 {% endif %}
 {% endblock %}

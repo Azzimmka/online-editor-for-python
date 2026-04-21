@@ -1,0 +1,90 @@
+/* ═══════════════════════════════════════════════════════════
+   Admin Custom Styles — Python Problemset
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── CodeMirror in admin ───────────────────────────────── */
+.CodeMirror {
+    height: auto;
+    min-height: 200px;
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+    font-size: 13px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    line-height: 1.6;
+}
+
+/* Better fieldset descriptions */
+.module .description {
+    font-size: 13px !important;
+    color: #666 !important;
+    background: #f8f9fa !important;
+    padding: 10px 14px !important;
+    border-radius: 6px !important;
+    border-left: 3px solid #7c5cfc !important;
+    margin-bottom: 12px !important;
+    line-height: 1.6 !important;
+}
+
+.module .description code {
+    background: #eee;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: #7c5cfc;
+}
+
+/* ── Fieldset headers ── */
+.module h2 {
+    font-size: 15px !important;
+    letter-spacing: 0 !important;
+}
+
+/* ── Better form layout ── */
+.aligned label {
+    font-weight: 600 !important;
+    color: #333 !important;
+}
+
+/* ── Make code textareas taller if no CM ── */
+textarea.admin-code-editor {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    tab-size: 4;
+    white-space: pre;
+    min-height: 200px;
+    border-radius: 6px;
+}
+
+/* ── Better action bar ── */
+.actions {
+    padding: 10px 14px !important;
+}
+
+/* ── Syntax highlighting colors ── */
+.cm-s-default .cm-keyword {
+    color: #7c3aed;
+    font-weight: 500;
+}
+
+.cm-s-default .cm-def {
+    color: #0969da;
+}
+
+.cm-s-default .cm-string {
+    color: #0a7c5a;
+}
+
+.cm-s-default .cm-number {
+    color: #cf5700;
+}
+
+.cm-s-default .cm-comment {
+    color: #999;
+    font-style: italic;
+}
+
+.cm-s-default .cm-builtin {
+    color: #d97706;
+}

@@ -1,6 +1,7 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
 import re
@@ -8,16 +9,6 @@ import re
 from .forms import SubmissionForm
 from .models import Submission, Task
 from .utils import run_tests
-
-DAY_NAMES = {
-    1: "Понедельник",
-    2: "Вторник",
-    3: "Среда",
-    4: "Четверг",
-    5: "Пятница",
-    6: "Суббота",
-    7: "Воскресенье",
-}
 
 def _extract_examples(test_code: str, limit: int = 4) -> list[str]:
     examples = []
@@ -45,54 +36,115 @@ def _extract_examples(test_code: str, limit: int = 4) -> list[str]:
 
 
 def dashboard(request):
-    tasks_by_day = {day: list(Task.objects.filter(day_index=day)) for day in range(1, 8)}
+    all_tasks = list(Task.objects.all().order_by("day_index", "order"))
     passed_task_ids = set()
     if request.user.is_authenticated:
         passed_task_ids = set(
             Submission.objects.filter(user=request.user, passed=True).values_list("task_id", flat=True)
         )
 
-    days = []
-    for day in range(1, 8):
-        day_tasks = tasks_by_day.get(day, [])
-        completed = sum(1 for task in day_tasks if task.id in passed_task_ids)
-        total = len(day_tasks)
-        percent = int((completed / total) * 100) if total else 0
-        days.append(
+    selected_style = request.GET.get("style", "all")
+    available_styles = {choice for choice, _ in Task.STYLE_CHOICES}
+    if selected_style not in available_styles:
+        selected_style = "all"
+
+    selected_set = request.GET.get("set", "all")
+    available_sets = sorted({task.day_index for task in all_tasks})
+    selected_set_index = None
+    if selected_set != "all":
+        try:
+            parsed_set = int(selected_set)
+        except (TypeError, ValueError):
+            parsed_set = None
+        if parsed_set in available_sets:
+            selected_set_index = parsed_set
+
+    tasks = all_tasks
+    if selected_style != "all":
+        tasks = [task for task in tasks if task.style == selected_style]
+    if selected_set_index is not None:
+        tasks = [task for task in tasks if task.day_index == selected_set_index]
+
+    style_filters = [
+        {
+            "value": "all",
+            "label": "Все стили",
+            "count": len(all_tasks),
+            "active": selected_style == "all",
+        }
+    ]
+    for value, label in Task.STYLE_CHOICES:
+        style_filters.append(
             {
-                "index": day,
-                "name": DAY_NAMES[day],
-                "tasks": day_tasks,
-                "completed": completed,
-                "total": total,
-                "percent": percent,
+                "value": value,
+                "label": label,
+                "count": sum(1 for task in all_tasks if task.style == value),
+                "active": selected_style == value,
             }
         )
 
-    return render(request, "planner/dashboard.html", {"days": days})
+    set_filters = [
+        {
+            "value": "all",
+            "label": "Все подборки",
+            "active": selected_set_index is None,
+        }
+    ]
+    for set_index in available_sets:
+        set_filters.append(
+            {
+                "value": set_index,
+                "label": f"Подборка {set_index}",
+                "active": selected_set_index == set_index,
+            }
+        )
 
+    solved_total = len(passed_task_ids)
+    total_tasks = len(all_tasks)
+    unsolved_total = max(total_tasks - solved_total, 0)
+    solved_percent = int((solved_total / total_tasks) * 100) if total_tasks else 0
+    filtered_total = len(tasks)
 
-def day_view(request, day: int):
-    if day not in DAY_NAMES:
-        return redirect("dashboard")
-
-    tasks = list(Task.objects.filter(day_index=day))
-    passed_task_ids = set()
-    if request.user.is_authenticated:
-        passed_task_ids = set(
-            Submission.objects.filter(user=request.user, passed=True).values_list("task_id", flat=True)
+    style_stats = []
+    for style_value, style_label in Task.STYLE_CHOICES:
+        style_tasks = [task for task in all_tasks if task.style == style_value]
+        style_total = len(style_tasks)
+        style_solved = sum(1 for task in style_tasks if task.id in passed_task_ids)
+        style_percent = int((style_solved / style_total) * 100) if style_total else 0
+        style_stats.append(
+            {
+                "value": style_value,
+                "label": style_label,
+                "total": style_total,
+                "solved": style_solved,
+                "percent": style_percent,
+            }
         )
 
     return render(
         request,
-        "planner/day.html",
+        "planner/dashboard.html",
         {
-            "day": day,
-            "day_name": DAY_NAMES[day],
             "tasks": tasks,
             "passed_task_ids": passed_task_ids,
+            "style_filters": style_filters,
+            "set_filters": set_filters,
+            "solved_total": solved_total,
+            "total_tasks": total_tasks,
+            "unsolved_total": unsolved_total,
+            "solved_percent": solved_percent,
+            "filtered_total": filtered_total,
+            "style_stats": style_stats,
+            "selected_style": selected_style,
+            "selected_set": selected_set_index,
         },
     )
+
+
+def day_view(request, day: int):
+    if not Task.objects.filter(day_index=day).exists():
+        return redirect("dashboard")
+    return redirect(f"{reverse('dashboard')}?set={day}")
 
 
 @login_required
@@ -137,6 +189,8 @@ def task_detail(request, task_id: int):
     elif last_submission:
         passed = last_submission.passed
 
+    back_url = f"{reverse('dashboard')}?set={task.day_index}"
+
     return render(
         request,
         "planner/task_detail.html",
@@ -148,6 +202,7 @@ def task_detail(request, task_id: int):
             "examples": examples,
             "next_task": next_task,
             "passed": passed,
+            "back_url": back_url,
         },
     )
 

@@ -3,15 +3,15 @@
 {% block content %}
 <section class="day-heading">
     <div>
-        <h1>{{ day_name }}</h1>
-        <p class="muted">10 задач на день, чтобы закрыть основные стили программирования.</p>
+        <h1>Подборка {{ day }}</h1>
+        <p class="muted">Список задач с автопроверкой и быстрым переходом в редактор.</p>
         <div class="pill-row">
-            <span class="pill">4 процедурных</span>
-            <span class="pill">3 функциональных</span>
-            <span class="pill">3 ООП</span>
+            <span class="pill">🐍 Python</span>
+            <span class="pill">⚡ Автопроверка</span>
+            <span class="pill">🎯 Тренировка</span>
         </div>
     </div>
-    <a class="btn ghost" href="{% url 'dashboard' %}">Назад к плану</a>
+    <a class="btn ghost" href="{% url 'dashboard' %}">К списку задач</a>
 </section>
 
 <div class="task-grid">

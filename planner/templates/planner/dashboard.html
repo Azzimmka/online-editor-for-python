@@ -1,18 +1,59 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="hero">
-    <div class="hero-card">
-        <h1>План на неделю</h1>
-        <p class="muted">10 задач в день: процедурный, функциональный и ООП стили. Решения проверяются автоматически.</p>
+<section class="dashboard-overview">
+    <div class="hero-card stats-main-card">
+        <div class="stats-heading">
+            <h1>Python Problemset</h1>
+            <p class="muted">Список задач с автопроверкой в стиле LeetCode: выбирайте фильтр, решайте и отслеживайте прогресс.</p>
+        </div>
+        <div class="stats-main-grid">
+            <article class="kpi-card">
+                <span class="kpi-label">Всего задач</span>
+                <strong class="kpi-value">{{ total_tasks }}</strong>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-label">Решено</span>
+                <strong class="kpi-value" style="color: var(--green);">{{ solved_total }}</strong>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-label">Осталось</span>
+                <strong class="kpi-value" style="color: var(--orange);">{{ unsolved_total }}</strong>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-label">По фильтру</span>
+                <strong class="kpi-value" style="color: var(--accent);">{{ filtered_total }}</strong>
+            </article>
+        </div>
         <div class="hero-pills">
-            <span class="hero-pill">70 задач</span>
-            <span class="hero-pill">Python 3.13</span>
-            <span class="hero-pill">Автопроверка</span>
+            <span class="hero-pill">🐍 Python 3.13</span>
+            <span class="hero-pill">⚡ Автопроверка</span>
+            <span class="hero-pill">🎯 Карточный формат</span>
         </div>
     </div>
+
+    <div class="hero-card stats-side-card">
+        <div class="progress-ring" style="--progress: {{ solved_percent }};">
+            <span>{{ solved_percent }}%</span>
+        </div>
+        <h3>Общий прогресс</h3>
+        <div class="style-stats">
+            {% for stat in style_stats %}
+            <div class="style-stat-row">
+                <div class="style-stat-meta">
+                    <span>{{ stat.label }}</span>
+                    <span>{{ stat.solved }}/{{ stat.total }}</span>
+                </div>
+                <div class="style-stat-bar">
+                    <span style="--value: {{ stat.percent }}%;"></span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
     {% if not user.is_authenticated %}
-    <div class="cta hero-card">
+    <div class="hero-card problem-auth-card wide-auth">
         <div>
             <h2>Сохраняйте прогресс</h2>
             <p class="muted">Войдите, чтобы видеть историю попыток и статус решений.</p>
@@ -22,32 +63,57 @@
     {% endif %}
 </section>
 
-<div class="week-grid">
-    {% for day in days %}
-    <section class="day-card">
-        <header class="day-header">
-            <div>
-                <div class="day-kicker">День {{ day.index }}</div>
-                <h2>{{ day.name }}</h2>
-                <div class="progress">Готово: {{ day.completed }}/{{ day.total }}</div>
-                <div class="progress-bar" style="--value: {{ day.percent }}%;">
-                    <span></span>
-                </div>
-            </div>
-            <a class="btn ghost" href="{% url 'day' day.index %}">Открыть</a>
-        </header>
-        <ul class="task-list">
-            {% for task in day.tasks %}
-            <li>
-                <a class="task-link" href="{% url 'task_detail' task.id %}">
-                    <span class="task-number">#{{ task.order }}</span>
-                    <span class="task-title">{{ task.title }}</span>
+<section class="problem-filters">
+    <div class="filter-group">
+        <span class="filter-label">Стиль</span>
+        <div class="filter-row">
+            {% for filter in style_filters %}
+                <a
+                    class="filter-chip {% if filter.active %}active{% endif %}"
+                    href="?style={{ filter.value }}{% if selected_set %}&set={{ selected_set }}{% endif %}"
+                >
+                    {{ filter.label }}
+                    <span>{{ filter.count }}</span>
                 </a>
-                <span class="tag tag-{{ task.style }}">{{ task.get_style_display }}</span>
-            </li>
             {% endfor %}
-        </ul>
-    </section>
+        </div>
+    </div>
+    <div class="filter-group">
+        <span class="filter-label">Подборка</span>
+        <div class="filter-row">
+            {% for filter in set_filters %}
+                <a
+                    class="filter-chip {% if filter.active %}active{% endif %}"
+                    href="?set={{ filter.value }}{% if selected_style != 'all' %}&style={{ selected_style }}{% endif %}"
+                >
+                    {{ filter.label }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="problem-cards-grid">
+    {% for task in tasks %}
+    <article class="problem-card style-{{ task.style }} {% if task.id in passed_task_ids %}is-solved{% endif %}">
+        <div class="problem-card-head">
+            <span class="mono problem-id">{{ task.day_index }}.{{ task.order }}</span>
+            {% if task.id in passed_task_ids %}
+                <span class="state state-solved">Решено</span>
+            {% else %}
+                <span class="state state-open">Не решено</span>
+            {% endif %}
+        </div>
+        <h3><a class="problem-link" href="{% url 'task_detail' task.id %}">{{ task.title }}</a></h3>
+        <p class="problem-preview">{{ task.description|truncatechars:140 }}</p>
+        <div class="problem-meta">
+            <span class="tag tag-{{ task.style }}">{{ task.get_style_display }}</span>
+            <span class="collection-pill">Подборка {{ task.day_index }}</span>
+        </div>
+        <a class="btn ghost small" href="{% url 'task_detail' task.id %}">Открыть задачу →</a>
+    </article>
+    {% empty %}
+    <div class="table-empty">По текущему фильтру задач нет.</div>
     {% endfor %}
-</div>
+</section>
 {% endblock %}
