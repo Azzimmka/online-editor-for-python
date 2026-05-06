@@ -10,4 +10,82 @@
     </form>
     <p class="muted">Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
 </section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Находим первое поле с паролем (основной пароль)
+    const pwdInput = document.querySelector('.auth-form input[type="password"]');
+    if (!pwdInput) return;
+
+    // Создаем контейнер для индикатора
+    const indicatorContainer = document.createElement('div');
+    indicatorContainer.style.marginTop = '8px';
+    indicatorContainer.style.display = 'none'; 
+    indicatorContainer.style.width = '100%';
+    
+    // Текстовая метка
+    const textLabel = document.createElement('div');
+    textLabel.style.fontSize = '12px';
+    textLabel.style.fontWeight = '600';
+    textLabel.style.marginBottom = '6px';
+    textLabel.style.color = 'var(--ink-3)';
+    textLabel.innerText = 'Сложность пароля: ';
+    
+    const statusSpan = document.createElement('span');
+    textLabel.appendChild(statusSpan);
+
+    // Контейнер для полосок
+    const bars = document.createElement('div');
+    bars.style.display = 'flex';
+    bars.style.gap = '6px';
+    bars.style.height = '4px';
+
+    const bar1 = document.createElement('div');
+    const bar2 = document.createElement('div');
+    const bar3 = document.createElement('div');
+    
+    [bar1, bar2, bar3].forEach(b => {
+        b.style.flex = '1';
+        b.style.backgroundColor = '#e5e7eb';
+        b.style.borderRadius = '2px';
+        b.style.transition = 'background-color 0.3s ease';
+        bars.appendChild(b);
+    });
+
+    indicatorContainer.appendChild(textLabel);
+    indicatorContainer.appendChild(bars);
+
+    // Вставляем индикатор сразу после поля ввода пароля
+    pwdInput.parentElement.appendChild(indicatorContainer);
+
+    pwdInput.addEventListener('input', function() {
+        const val = pwdInput.value;
+        if (!val) {
+            indicatorContainer.style.display = 'none';
+            return;
+        }
+        indicatorContainer.style.display = 'block';
+
+        // Сбрасываем цвета
+        [bar1, bar2, bar3].forEach(b => b.style.backgroundColor = '#e5e7eb');
+        
+        if (val.length < 5) {
+            bar1.style.backgroundColor = '#ef4444'; // красный
+            statusSpan.innerText = 'Слишком короткий...';
+            statusSpan.style.color = '#ef4444';
+        } else if (val.length < 8) {
+            bar1.style.backgroundColor = '#f59e0b'; // желтый
+            bar2.style.backgroundColor = '#f59e0b';
+            statusSpan.innerText = 'Ещё чуть-чуть...';
+            statusSpan.style.color = '#f59e0b';
+        } else {
+            bar1.style.backgroundColor = '#10b981'; // зеленый
+            bar2.style.backgroundColor = '#10b981';
+            bar3.style.backgroundColor = '#10b981';
+            statusSpan.innerText = 'Отличный пароль! 🚀';
+            statusSpan.style.color = '#10b981';
+        }
+    });
+});
+</script>
 {% endblock %}

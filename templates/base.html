@@ -147,17 +147,28 @@
                 const eyeOpen = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
 
                 passwordInputs.forEach(function(input) {
-                    const parent = input.parentElement;
-                    parent.style.position = 'relative';
+                    // Wrap the input in a relative div to keep the eye inside
+                    const wrapper = document.createElement('div');
+                    wrapper.style.position = 'relative';
+                    wrapper.style.display = 'block';
+                    wrapper.style.width = '100%';
+                    
+                    input.parentNode.insertBefore(wrapper, input);
+                    wrapper.appendChild(input);
 
                     input.classList.add('js-pwd-input');
+                    // Force input width to 100% just in case
+                    input.style.width = '100%';
+                    input.style.boxSizing = 'border-box';
+                    input.style.paddingRight = '40px'; // space for icon
 
                     const btn = document.createElement('button');
                     btn.type = 'button';
                     btn.className = 'password-toggle js-pwd-btn';
                     btn.style.position = 'absolute';
                     btn.style.right = '12px';
-                    btn.style.bottom = '9px';
+                    btn.style.top = '50%';
+                    btn.style.transform = 'translateY(-50%)';
                     btn.style.background = 'none';
                     btn.style.border = 'none';
                     btn.style.cursor = 'pointer';
@@ -194,10 +205,7 @@
                         });
                     });
 
-                    // Add padding to input so text doesn't hide behind the icon
-                    input.style.paddingRight = '40px';
-
-                    parent.appendChild(btn);
+                    wrapper.appendChild(btn);
                 });
             });
         </script>
