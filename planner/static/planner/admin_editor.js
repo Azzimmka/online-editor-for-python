@@ -12,6 +12,7 @@
 
             var cm = CodeMirror.fromTextArea(textarea, {
                 mode: "python",
+                theme: "monokai",
                 lineNumbers: true,
                 indentUnit: 4,
                 tabSize: 4,

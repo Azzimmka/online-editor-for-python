@@ -36,7 +36,7 @@ def _extract_examples(test_code: str, limit: int = 4) -> list[str]:
 
 
 def dashboard(request):
-    all_tasks = list(Task.objects.all().order_by("day_index", "order"))
+    all_tasks = list(Task.objects.all().order_by("order"))
     passed_task_ids = set()
     if request.user.is_authenticated:
         passed_task_ids = set(
@@ -48,22 +48,16 @@ def dashboard(request):
     if selected_style not in available_styles:
         selected_style = "all"
 
-    selected_set = request.GET.get("set", "all")
-    available_sets = sorted({task.day_index for task in all_tasks})
-    selected_set_index = None
-    if selected_set != "all":
-        try:
-            parsed_set = int(selected_set)
-        except (TypeError, ValueError):
-            parsed_set = None
-        if parsed_set in available_sets:
-            selected_set_index = parsed_set
+    selected_complexity = request.GET.get("complexity", "all")
+    available_complexities = {choice for choice, _ in Task.COMPLEXITY_CHOICES}
+    if selected_complexity not in available_complexities and selected_complexity != "all":
+        selected_complexity = "all"
 
     tasks = all_tasks
     if selected_style != "all":
         tasks = [task for task in tasks if task.style == selected_style]
-    if selected_set_index is not None:
-        tasks = [task for task in tasks if task.day_index == selected_set_index]
+    if selected_complexity != "all":
+        tasks = [task for task in tasks if task.complexity == selected_complexity]
 
     style_filters = [
         {
@@ -83,19 +77,19 @@ def dashboard(request):
             }
         )
 
-    set_filters = [
+    complexity_filters = [
         {
             "value": "all",
-            "label": "Все подборки",
-            "active": selected_set_index is None,
+            "label": "Все сложности",
+            "active": selected_complexity == "all",
         }
     ]
-    for set_index in available_sets:
-        set_filters.append(
+    for value, label in Task.COMPLEXITY_CHOICES:
+        complexity_filters.append(
             {
-                "value": set_index,
-                "label": f"Подборка {set_index}",
-                "active": selected_set_index == set_index,
+                "value": value,
+                "label": label,
+                "active": selected_complexity == value,
             }
         )
 
@@ -128,7 +122,7 @@ def dashboard(request):
             "tasks": tasks,
             "passed_task_ids": passed_task_ids,
             "style_filters": style_filters,
-            "set_filters": set_filters,
+            "complexity_filters": complexity_filters,
             "solved_total": solved_total,
             "total_tasks": total_tasks,
             "unsolved_total": unsolved_total,
@@ -136,28 +130,21 @@ def dashboard(request):
             "filtered_total": filtered_total,
             "style_stats": style_stats,
             "selected_style": selected_style,
-            "selected_set": selected_set_index,
+            "selected_complexity": selected_complexity,
         },
     )
 
 
 def day_view(request, day: int):
-    if not Task.objects.filter(day_index=day).exists():
-        return redirect("dashboard")
-    return redirect(f"{reverse('dashboard')}?set={day}")
+    # Backward compatibility redirect
+    return redirect("dashboard")
 
 
 @login_required
 def task_detail(request, task_id: int):
     task = get_object_or_404(Task, id=task_id)
     last_submission = Submission.objects.filter(user=request.user, task=task).first()
-    next_task = (
-        Task.objects.filter(
-            Q(day_index=task.day_index, order__gt=task.order) | Q(day_index__gt=task.day_index)
-        )
-        .order_by("day_index", "order")
-        .first()
-    )
+    next_task = Task.objects.filter(order__gt=task.order).order_by("order").first()
 
     initial_code = task.starter_code
     if last_submission:
@@ -189,7 +176,7 @@ def task_detail(request, task_id: int):
     elif last_submission:
         passed = last_submission.passed
 
-    back_url = f"{reverse('dashboard')}?set={task.day_index}"
+    back_url = f"{reverse('dashboard')}?complexity={task.complexity}"
 
     return render(
         request,

@@ -47,11 +47,11 @@ class TaskAdmin(admin.ModelAdmin):
         "created_at",
         "complexity",
     )
-    list_filter = ("day_index", "style")
+    list_filter = ("complexity", "style")
     search_fields = ("title", "description")
     list_per_page = 25
     list_editable = ()
-    ordering = ("day_index", "order")
+    ordering = ("order",)
 
     # ── Form layout ──
     fieldsets = (
@@ -60,11 +60,8 @@ class TaskAdmin(admin.ModelAdmin):
             "description": "Название и описание задачи, которые видит ученик.",
         }),
         ("📁 Расположение", {
-            "fields": (("day_index", "order"),),
-            "description": (
-                "<b>Подборка</b> — номер набора задач (1, 2, 3…). "
-                "<b>Порядок</b> — позиция задачи внутри подборки."
-            ),
+            "fields": ("order",),
+            "description": "Порядок вывода задачи.",
         }),
         ("💻 Шаблон кода", {
             "fields": ("starter_code",),
@@ -92,19 +89,18 @@ class TaskAdmin(admin.ModelAdmin):
     def duplicate_tasks(self, request, queryset):
         count = 0
         for task in queryset:
-            # Find next available order in the same day
+            # Find next available order
             max_order = (
-                Task.objects.filter(day_index=task.day_index)
-                .order_by("-order")
+                Task.objects.order_by("-order")
                 .values_list("order", flat=True)
                 .first()
             ) or 0
             Task.objects.create(
-                day_index=task.day_index,
                 order=max_order + 1,
                 title=f"{task.title} (копия)",
                 description=task.description,
                 style=task.style,
+                complexity=task.complexity,
                 starter_code=task.starter_code,
                 tests=task.tests,
             )
@@ -112,12 +108,11 @@ class TaskAdmin(admin.ModelAdmin):
         self.message_user(request, f"Продублировано задач: {count}")
 
     # ── Custom columns ──
-    @admin.display(description="Задача", ordering="day_index")
+    @admin.display(description="Задача", ordering="order")
     def task_label(self, obj):
         return format_html(
             '<span style="font-family: monospace; font-weight: 600; '
-            'color: #7c5cfc; font-size: 13px;">{}.{}</span>',
-            obj.day_index,
+            'color: #7c5cfc; font-size: 13px;">#{}</span>',
             obj.order,
         )
 
@@ -174,13 +169,10 @@ class TaskAdmin(admin.ModelAdmin):
     # ── Auto-fill order for new tasks ──
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
-        # Suggest next order for the most common day_index
-        last_task = Task.objects.order_by("-day_index", "-order").first()
+        last_task = Task.objects.order_by("-order").first()
         if last_task:
-            initial.setdefault("day_index", last_task.day_index)
             initial.setdefault("order", last_task.order + 1)
         else:
-            initial.setdefault("day_index", 1)
             initial.setdefault("order", 1)
         return initial
 
@@ -188,6 +180,7 @@ class TaskAdmin(admin.ModelAdmin):
         css = {
             "all": (
                 "https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.css",
+                "https://cdn.jsdelivr.net/npm/codemirror@5.65.16/theme/monokai.css",
                 "planner/admin_custom.css",
             )
         }
@@ -208,10 +201,9 @@ class SubmissionAdmin(admin.ModelAdmin):
         "user",
         "task",
         "status_badge",
-        "code_preview",
         "created_at",
     )
-    list_filter = ("passed", "created_at", "task__day_index", "task__style")
+    list_filter = ("user", "passed", "created_at", "task__complexity", "task__style")
     search_fields = ("user__username", "task__title")
     list_per_page = 30
     readonly_fields = ("user", "task", "code", "passed", "output", "error", "created_at")

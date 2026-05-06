@@ -7,6 +7,7 @@
         <div class="task-detail-title-row">
             <h1>#{{ task.order }} {{ task.title }}</h1>
             <span class="tag tag-{{ task.style }}">{{ task.get_style_display }}</span>
+            <span class="tag">{{ task.get_complexity_display }}</span>
         </div>
     </div>
 

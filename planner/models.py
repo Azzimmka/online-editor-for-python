@@ -26,8 +26,7 @@ class Task(models.Model):
         (STYLE_OOP, "ООП"),
     ]
 
-    day_index = models.PositiveSmallIntegerField()
-    order = models.PositiveSmallIntegerField()
+    order = models.PositiveSmallIntegerField(verbose_name="Порядок", default=0)
     title = models.CharField(max_length=200)
     description = models.TextField()
     style = models.CharField(max_length=20, choices=STYLE_CHOICES)
@@ -37,24 +36,27 @@ class Task(models.Model):
     complexity = models.CharField(max_length=20, choices=COMPLEXITY_CHOICES, default=COMPLEXITY_MEDIUM)
 
     class Meta:
-        unique_together = ("day_index", "order")
-        ordering = ["day_index", "order"]
+        ordering = ["order", "id"]
+        verbose_name = "Задача"
+        verbose_name_plural = "Задачи"
 
     def __str__(self) -> str:
-        return f"Day {self.day_index} #{self.order}: {self.title}"
+        return f"#{self.order}: {self.title}"
 
 
 class Submission(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    code = models.TextField()
-    passed = models.BooleanField(default=False)
-    output = models.TextField(blank=True)
-    error = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Ученик")
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name="Задача")
+    code = models.TextField(verbose_name="Код")
+    passed = models.BooleanField(default=False, verbose_name="Пройдено")
+    output = models.TextField(blank=True, verbose_name="Вывод")
+    error = models.TextField(blank=True, verbose_name="Ошибка")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата отправки")
 
     class Meta:
         ordering = ["-created_at"]
+        verbose_name = "Решение"
+        verbose_name_plural = "Решения учеников"
 
     def __str__(self) -> str:
         status = "OK" if self.passed else "FAIL"

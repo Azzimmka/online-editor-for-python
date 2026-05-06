@@ -6,6 +6,8 @@
 .CodeMirror {
     height: auto;
     min-height: 200px;
+    width: 800px;
+    max-width: 100%;
     font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
     font-size: 13px;
     border: 1px solid #ccc;
@@ -16,8 +18,8 @@
 /* Better fieldset descriptions */
 .module .description {
     font-size: 13px !important;
-    color: #666 !important;
-    background: #f8f9fa !important;
+    color: var(--body-quiet-color, #999) !important;
+    background: var(--darkened-bg, #222) !important;
     padding: 10px 14px !important;
     border-radius: 6px !important;
     border-left: 3px solid #7c5cfc !important;
@@ -26,7 +28,7 @@
 }
 
 .module .description code {
-    background: #eee;
+    background: var(--body-bg, #111);
     padding: 1px 5px;
     border-radius: 3px;
     font-family: "JetBrains Mono", monospace;
@@ -43,7 +45,7 @@
 /* ── Better form layout ── */
 .aligned label {
     font-weight: 600 !important;
-    color: #333 !important;
+    color: var(--body-fg, #ccc) !important;
 }
 
 /* ── Make code textareas taller if no CM ── */

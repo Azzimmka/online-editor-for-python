@@ -20,10 +20,7 @@
                 <span class="kpi-label">Осталось</span>
                 <strong class="kpi-value" style="color: var(--orange);">{{ unsolved_total }}</strong>
             </article>
-            <article class="kpi-card">
-                <span class="kpi-label">По фильтру</span>
-                <strong class="kpi-value" style="color: var(--accent);">{{ filtered_total }}</strong>
-            </article>
+            <!-- Removed filtered section for minimalism -->
         </div>
         <div class="hero-pills">
             <span class="hero-pill">🐍 Python 3.13</span>
@@ -79,12 +76,12 @@
         </div>
     </div>
     <div class="filter-group">
-        <span class="filter-label">Подборка</span>
+        <span class="filter-label">Сложность</span>
         <div class="filter-row">
-            {% for filter in set_filters %}
+            {% for filter in complexity_filters %}
                 <a
                     class="filter-chip {% if filter.active %}active{% endif %}"
-                    href="?set={{ filter.value }}{% if selected_style != 'all' %}&style={{ selected_style }}{% endif %}"
+                    href="?complexity={{ filter.value }}{% if selected_style != 'all' %}&style={{ selected_style }}{% endif %}"
                 >
                     {{ filter.label }}
                 </a>
@@ -97,7 +94,7 @@
     {% for task in tasks %}
     <article class="problem-card style-{{ task.style }} {% if task.id in passed_task_ids %}is-solved{% endif %}">
         <div class="problem-card-head">
-            <span class="mono problem-id">{{ task.day_index }}.{{ task.order }}</span>
+            <span class="mono problem-id">#{{ task.order }}</span>
             {% if task.id in passed_task_ids %}
                 <span class="state state-solved">Решено</span>
             {% else %}
@@ -118,7 +115,7 @@
         <p class="problem-preview">{{ task.description|truncatechars:140 }}</p>
         <div class="problem-meta">
             <span class="tag tag-{{ task.style }}">{{ task.get_style_display }}</span>
-            <span class="collection-pill">Подборка {{ task.day_index }}</span>
+            <span class="collection-pill">{{ task.get_complexity_display }}</span>
         </div>
         <a class="btn ghost small" href="{% url 'task_detail' task.id %}">Открыть задачу →</a>
     </article>
