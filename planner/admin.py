@@ -45,6 +45,7 @@ class TaskAdmin(admin.ModelAdmin):
         "test_count_display",
         "submissions_stat",
         "created_at",
+        "complexity",
     )
     list_filter = ("day_index", "style")
     search_fields = ("title", "description")
@@ -55,7 +56,7 @@ class TaskAdmin(admin.ModelAdmin):
     # ── Form layout ──
     fieldsets = (
         ("📋 Основное", {
-            "fields": ("title", "description", "style"),
+            "fields": ("title", "description", "style", "complexity"),
             "description": "Название и описание задачи, которые видит ученик.",
         }),
         ("📁 Расположение", {

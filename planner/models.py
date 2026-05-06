@@ -2,10 +2,23 @@ from django.conf import settings
 from django.db import models
 
 
+
+
 class Task(models.Model):
     STYLE_PROCEDURAL = "procedural"
     STYLE_FUNCTIONAL = "functional"
     STYLE_OOP = "oop"
+
+    COMPLEXITY_EASY = "easy"
+    COMPLEXITY_MEDIUM = "medium"
+    COMPLEXITY_HARD = "hard"
+
+    # Список вариантов: (значение в базе, отображаемое имя)
+    COMPLEXITY_CHOICES = [
+        (COMPLEXITY_EASY, "Легко"),
+        (COMPLEXITY_MEDIUM, "Средне"),
+        (COMPLEXITY_HARD, "Сложно"),
+    ]
 
     STYLE_CHOICES = [
         (STYLE_PROCEDURAL, "Процедурный"),
@@ -21,6 +34,7 @@ class Task(models.Model):
     starter_code = models.TextField(blank=True)
     tests = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    complexity = models.CharField(max_length=20, choices=COMPLEXITY_CHOICES, default=COMPLEXITY_MEDIUM)
 
     class Meta:
         unique_together = ("day_index", "order")

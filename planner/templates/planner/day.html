@@ -20,11 +20,13 @@
         <div class="task-card-header">
             <div>
                 <div class="task-number">#{{ task.order }}</div>
+
                 <h3>{{ task.title }}</h3>
             </div>
             <span class="tag tag-{{ task.style }}">{{ task.get_style_display }}</span>
         </div>
         <p class="muted">{{ task.description|linebreaksbr }}</p>
+
         {% if task.id in passed_task_ids %}
             <span class="status status-ok">Решено</span>
         {% else %}

@@ -20,13 +20,13 @@
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/show-hint.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/anyword-hint.js" defer></script>
     <script src="{% static 'planner/editor.js' %}" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body>
     <div class="background-layer"></div>
     <header class="topbar">
         <div class="brand">
-            <span class="brand-mark"><a href="{% url 'dashboard' %}">Py</a></span>
-            <span class="brand-text">Problemset</span>
+            <a class="brand-mark" href="{% url 'dashboard' %}"class="brand-text">Problem set</a>
         </div>
         <nav class="nav-links">
             <a href="{% url 'dashboard' %}">Задачи</a>
