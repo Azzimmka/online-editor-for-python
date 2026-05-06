@@ -3,12 +3,27 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta
-            name="description"
-            content="Python Problemset — задачи по Python с автопроверкой"
-        />
-        <title>Python Problemset</title>
+        <title>YECHIM.tech — Задачи по Python</title>
+        <meta name="description" content="YECHIM.tech — платформа с задачами по Python с автопроверкой. Тренируйся, решай, расти." />
+
+        <!-- Favicon -->
         {% load static %}
+        <link rel="icon" type="image/png" href="{% static 'planner/favicon.png' %}" />
+        <link rel="shortcut icon" type="image/png" href="{% static 'planner/favicon.png' %}" />
+        <link rel="apple-touch-icon" href="{% static 'planner/favicon.png' %}" />
+
+        <!-- Open Graph (для ВКонтакте, Telegram, Facebook) -->
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="YECHIM.tech — Задачи по Python" />
+        <meta property="og:description" content="Платформа для практики Python с автоматической проверкой. Лёгкие, средние и сложные задачи." />
+        <meta property="og:image" content="{% static 'planner/logo.png' %}" />
+        <meta property="og:locale" content="ru_RU" />
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="YECHIM.tech — Задачи по Python" />
+        <meta name="twitter:description" content="Платформа для практики Python с автоматической проверкой." />
+        <meta name="twitter:image" content="{% static 'planner/logo.png' %}" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
