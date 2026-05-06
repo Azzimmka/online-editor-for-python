@@ -51,7 +51,7 @@ class TaskAdmin(admin.ModelAdmin):
     search_fields = ("title", "description")
     list_per_page = 25
     list_editable = ()
-    ordering = ("order",)
+    ordering = ("complexity", "id")
 
     # ── Form layout ──
     fieldsets = (
@@ -59,10 +59,7 @@ class TaskAdmin(admin.ModelAdmin):
             "fields": ("title", "description", "style", "complexity"),
             "description": "Название и описание задачи, которые видит ученик.",
         }),
-        ("📁 Расположение", {
-            "fields": ("order",),
-            "description": "Порядок вывода задачи.",
-        }),
+
         ("💻 Шаблон кода", {
             "fields": ("starter_code",),
             "description": (
@@ -89,14 +86,7 @@ class TaskAdmin(admin.ModelAdmin):
     def duplicate_tasks(self, request, queryset):
         count = 0
         for task in queryset:
-            # Find next available order
-            max_order = (
-                Task.objects.order_by("-order")
-                .values_list("order", flat=True)
-                .first()
-            ) or 0
             Task.objects.create(
-                order=max_order + 1,
                 title=f"{task.title} (копия)",
                 description=task.description,
                 style=task.style,
@@ -108,12 +98,12 @@ class TaskAdmin(admin.ModelAdmin):
         self.message_user(request, f"Продублировано задач: {count}")
 
     # ── Custom columns ──
-    @admin.display(description="Задача", ordering="order")
+    @admin.display(description="Задача", ordering="id")
     def task_label(self, obj):
         return format_html(
             '<span style="font-family: monospace; font-weight: 600; '
             'color: #7c5cfc; font-size: 13px;">#{}</span>',
-            obj.order,
+            obj.id,
         )
 
     @admin.display(description="Стиль")
@@ -166,15 +156,6 @@ class TaskAdmin(admin.ModelAdmin):
         )
         return qs
 
-    # ── Auto-fill order for new tasks ──
-    def get_changeform_initial_data(self, request):
-        initial = super().get_changeform_initial_data(request)
-        last_task = Task.objects.order_by("-order").first()
-        if last_task:
-            initial.setdefault("order", last_task.order + 1)
-        else:
-            initial.setdefault("order", 1)
-        return initial
 
     class Media:
         css = {

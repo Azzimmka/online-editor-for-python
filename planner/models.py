@@ -26,7 +26,7 @@ class Task(models.Model):
         (STYLE_OOP, "ООП"),
     ]
 
-    order = models.PositiveSmallIntegerField(verbose_name="Порядок", default=0)
+
     title = models.CharField(max_length=200)
     description = models.TextField()
     style = models.CharField(max_length=20, choices=STYLE_CHOICES)
@@ -36,12 +36,12 @@ class Task(models.Model):
     complexity = models.CharField(max_length=20, choices=COMPLEXITY_CHOICES, default=COMPLEXITY_MEDIUM)
 
     class Meta:
-        ordering = ["order", "id"]
+        ordering = ["complexity", "id"]
         verbose_name = "Задача"
         verbose_name_plural = "Задачи"
 
     def __str__(self) -> str:
-        return f"#{self.order}: {self.title}"
+        return self.title
 
 
 class Submission(models.Model):

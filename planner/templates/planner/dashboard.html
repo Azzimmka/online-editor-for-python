@@ -94,7 +94,7 @@
     {% for task in tasks %}
     <article class="problem-card style-{{ task.style }} {% if task.id in passed_task_ids %}is-solved{% endif %}">
         <div class="problem-card-head">
-            <span class="mono problem-id">#{{ task.order }}</span>
+            <span class="mono problem-id">#{{ task.id }}</span>
             {% if task.id in passed_task_ids %}
                 <span class="state state-solved">Решено</span>
             {% else %}

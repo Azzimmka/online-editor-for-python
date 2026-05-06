@@ -36,7 +36,7 @@ def _extract_examples(test_code: str, limit: int = 4) -> list[str]:
 
 
 def dashboard(request):
-    all_tasks = list(Task.objects.all().order_by("order"))
+    all_tasks = list(Task.objects.all().order_by("complexity", "id"))
     passed_task_ids = set()
     if request.user.is_authenticated:
         passed_task_ids = set(
@@ -144,7 +144,7 @@ def day_view(request, day: int):
 def task_detail(request, task_id: int):
     task = get_object_or_404(Task, id=task_id)
     last_submission = Submission.objects.filter(user=request.user, task=task).first()
-    next_task = Task.objects.filter(order__gt=task.order).order_by("order").first()
+    next_task = Task.objects.filter(id__gt=task.id).order_by("id").first()
 
     initial_code = task.starter_code
     if last_submission:
