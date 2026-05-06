@@ -62,14 +62,7 @@
                 class="flex justify-between items-center px-4 relative !py-[10px] !mx-auto max-w-[1200px]"
             >
                 <div class="brand">
-                    <a
-                        class="flex items-center gap-3 no-underline text-black group"
-                        href="{% url 'dashboard' %}"
-                    >
-                        <span
-                            class="font-bold text-2xl tracking-tighter uppercase"
-                            >Problemset</span
-                        >
+                    <a class="flex items-center gap-3 no-underline text-black group"href="{% url 'dashboard' %}" ><span class="font-bold text-2xl tracking-tighter">YECHIM<span class="translate-x-0.5 inline-block text-white bg-black">.tech</span>  </span>
                     </a>
                 </div>
 
@@ -127,7 +120,7 @@
                     >
                     <a
                         href="{% url 'register' %}"
-                        class="bg-black text-white px-5 py-2 hover:bg-gray-800 transition-colors"
+                        class="rounded-[30px] font-bold !text-white bg-black px-6 py-2 min-w-[150px] min-h-[50px] inline-flex justify-center items-center"
                         >Регистрация</a
                     >
                     {% endif %}
@@ -145,6 +138,68 @@
                     menu.classList.toggle("hidden");
                     menu.classList.toggle("flex");
                 });
+
+            // Password visibility toggle (глазочек)
+            document.addEventListener("DOMContentLoaded", function() {
+                const passwordInputs = document.querySelectorAll('input[type="password"]');
+                
+                const eyeClosed = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+                const eyeOpen = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+
+                passwordInputs.forEach(function(input) {
+                    const parent = input.parentElement;
+                    parent.style.position = 'relative';
+
+                    input.classList.add('js-pwd-input');
+
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'password-toggle js-pwd-btn';
+                    btn.style.position = 'absolute';
+                    btn.style.right = '12px';
+                    btn.style.bottom = '9px';
+                    btn.style.background = 'none';
+                    btn.style.border = 'none';
+                    btn.style.cursor = 'pointer';
+                    btn.style.color = '#8888a0';
+                    btn.style.padding = '0';
+                    btn.style.display = 'flex';
+                    btn.style.alignItems = 'center';
+                    btn.style.justifyContent = 'center';
+                    btn.style.transition = 'color 0.2s';
+                    
+                    btn.innerHTML = eyeClosed;
+
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // Find the form this button belongs to
+                        const form = input.closest('form');
+                        if (!form) return;
+
+                        // Determine the new state based on current input
+                        const isPassword = input.type === 'password';
+                        const newType = isPassword ? 'text' : 'password';
+                        const newIcon = isPassword ? eyeOpen : eyeClosed;
+                        const newColor = isPassword ? '#111118' : '#8888a0';
+
+                        // Apply to ALL password inputs and buttons in this form
+                        const allInputs = form.querySelectorAll('.js-pwd-input');
+                        const allBtns = form.querySelectorAll('.js-pwd-btn');
+
+                        allInputs.forEach(inp => inp.type = newType);
+                        allBtns.forEach(b => {
+                            b.innerHTML = newIcon;
+                            b.style.color = newColor;
+                        });
+                    });
+
+                    // Add padding to input so text doesn't hide behind the icon
+                    input.style.paddingRight = '40px';
+
+                    parent.appendChild(btn);
+                });
+            });
         </script>
     </body>
 </html>

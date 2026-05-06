@@ -1290,14 +1290,11 @@ a {
 }
 
 .auth-form .helptext {
-    font-size: 11px;
-    color: var(--ink-4);
-    line-height: 1.4;
+    display: none;
 }
 
 .auth-form ul {
-    padding-left: 16px;
-    margin: 4px 0;
+    display: none;
 }
 
 .auth-form li {
